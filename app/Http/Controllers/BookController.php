@@ -38,9 +38,16 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        // return 'create new book';
+        // untuk buat fitur upload 
+        $file = $request->file('image');
+        $fileName = $file->getClientOriginalName();
+        $file->move('cover', $fileName); // kata cover di dalam fungsi move adalah path / directory untuk menyimpan file upload yang kita siapkan di folder public
+        // 
+
+        
         $books = new Book;
         $books->isbn = $request->isbn;
+        $books->cover = $fileName; // ini diambil dari variable upload diatas
         $books->title = $request->title;
         $books->price = $request->price;
 
