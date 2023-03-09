@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use \App\Models\Book;
+use Illuminate\Support\Facades\Validator;
 
 class BookController extends Controller
 {
@@ -38,26 +39,36 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        // untuk buat fitur upload 
-        $file = $request->file('image');
-        $fileName = $file->getClientOriginalName();
-        $file->move('cover', $fileName); // kata cover di dalam fungsi move adalah path / directory untuk menyimpan file upload yang kita siapkan di folder public
-        // 
+        // validasi
+        $validator = Validator::make($request->all(), [
+                'isbn' => 'required',
+                'title' => 'required',
+                'price' => 'required|integer',
+                'image' => 'required'
+        ]);
 
-        
-        $books = new Book;
-        $books->isbn = $request->isbn;
-        $books->cover = $fileName; // ini diambil dari variable upload diatas
-        $books->title = $request->title;
-        $books->price = $request->price;
+        if ($validator->fails()) {
+            $response['success'] = false;
+            $response['message'] = $validator->messages();
+            $response['data'] = null;
+        }else{
+            // untuk buat fitur upload 
+            $file = $request->file('image');
+            $fileName = $file->getClientOriginalName();
+            $file->move('cover', $fileName); // kata cover di dalam fungsi move adalah path / directory untuk menyimpan file upload yang kita siapkan di folder public
+            
+            $books = new Book;
+            $books->isbn = $request->isbn;
+            $books->cover = $fileName; // ini diambil dari variable upload diatas
+            $books->title = $request->title;
+            $books->price = $request->price;
 
-        $books->save();
-
-        $response = [
-            'message' => 'Book created successfuly!',
-            'success' => true,
-            'data' => $books
-        ];
+            $books->save();
+            
+            $response['success'] = true;
+            $response['message'] = 'Book is Created!';
+            $response['data'] = $books;
+        }
 
         return response()->json($response, 201);
     }
