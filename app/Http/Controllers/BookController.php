@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use \App\Models\Book;
+use App\Models\Book;
 use Illuminate\Support\Facades\Validator;
+// format data resource collection
+use App\Http\Resources\BookResource; // import resource collection
 
 class BookController extends Controller
 {
@@ -18,7 +20,7 @@ class BookController extends Controller
         $response = [
             'message' => 'Book all resource',
             'success' => true,
-            'data' => Book::all()
+            'data' => BookResource::collection(Book::all()) // ini resource collection
         ];
 
         return response()->json($response, 200);
@@ -81,7 +83,11 @@ class BookController extends Controller
      */
     public function show($id)
     {
-        return response()->json(Book::find($id), 200);
+        $response['success'] = true;
+        $response['message'] = 'Book ID '.$id.' Available!';
+        $response['data'] = new BookResource(Book::find($id));
+        
+        return response()->json($response, 200);
     }
 
     /**
